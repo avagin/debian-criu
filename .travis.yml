@@ -7,6 +7,7 @@ services:
 
 install:
   - pip install -U docker-compose
+  - sudo apt-get install -qq -y libprotobuf-c0 libprotobuf-lite8 libnet1 libnl-3-200 iptables
 
 script:
 
@@ -15,27 +16,29 @@ script:
 
   # run the criu bin for both distros
   - docker-compose run --rm debian-criu --version
-  - docker-compose run --rm debian-criu --help
   - docker-compose run --rm ubuntu-criu --version
-  - docker-compose run --rm ubuntu-criu --help
 
   # start the ubuntu container as a daemon
   - docker-compose up -d ubuntu-criu
 
-  # copy the criu bin to host fs
   - sudo docker cp $(docker-compose ps -q ubuntu-criu):/usr/local/bin/criu /usr/local/bin/criu
-
-  # install the criu packages in the host
-  - sudo apt-get install -y -qq libprotobuf-c0 libprotobuf-lite8 libnet1 libnl-3-200
 
   # start the test proc
   - setsid ./test.sh  < /dev/null &> test.log &
   - sleep 1 && tail test.log -n 1 && sleep 1 && tail test.log -n 1
   - PID=$(pgrep -f test.sh)
 
-  - docker-compose exec debian-criu criu --root=/host dump -t $PID
+  # dump/checkpoint the proc
+  - mkdir dump && cd dump
+  - sudo criu dump -t $PID
+
+  # log has stopped...
   - sleep 1 && tail test.log -n 1 && sleep 1 && tail test.log -n 1
+
+  # restore the proc
   - sudo criu restore -d -vvv
+
+  # log restarted
   - sleep 1 && tail test.log -n 1 && sleep 1 && tail test.log -n 1
   - kill -9 $PID
 
