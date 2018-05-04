@@ -21,7 +21,7 @@ script:
   # start the ubuntu container as a daemon and copy the criu binary out
   - docker-compose up -d ubuntu-criu
   - sudo docker cp $(docker-compose ps -q ubuntu-criu):/usr/local/bin/criu /usr/local/bin/criu
-  - criu --version
+  - sudo criu --version
 
   # start the test proc
   - setsid ./test.sh  < /dev/null &> test.log &
