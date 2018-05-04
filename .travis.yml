@@ -11,6 +11,8 @@ install:
 
 script:
 
+  - export CRIU_PMC_OFF=1
+
   # build the criu images
   - docker-compose build debian-criu ubuntu-criu
 
