@@ -18,10 +18,10 @@ script:
   - docker-compose run --rm debian-criu --version
   - docker-compose run --rm ubuntu-criu --version
 
-  # start the ubuntu container as a daemon
+  # start the ubuntu container as a daemon and copy the criu binary out
   - docker-compose up -d ubuntu-criu
-
   - sudo docker cp $(docker-compose ps -q ubuntu-criu):/usr/local/bin/criu /usr/local/bin/criu
+  - criu --version
 
   # start the test proc
   - setsid ./test.sh  < /dev/null &> test.log &
@@ -33,13 +33,13 @@ script:
   - sudo criu dump -t $PID
 
   # log has stopped...
-  - sleep 1 && tail test.log -n 1 && sleep 1 && tail test.log -n 1
+  - sleep 1 && tail ../test.log -n 1 && sleep 1 && tail ../test.log -n 1
 
   # restore the proc
   - sudo criu restore -d -vvv
 
   # log restarted
-  - sleep 1 && tail test.log -n 1 && sleep 1 && tail test.log -n 1
+  - sleep 1 && tail ../test.log -n 1 && sleep 1 && tail ../test.log -n 1
   - kill -9 $PID
 
 after_success:
