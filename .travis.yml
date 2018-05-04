@@ -30,7 +30,7 @@ script:
 
   # dump/checkpoint the proc
   - mkdir dump && cd dump
-  - sudo criu dump -t $PID
+  - sudo criu dump -t $PID -vvv
 
   # log has stopped...
   - sleep 1 && tail ../test.log -n 1 && sleep 1 && tail ../test.log -n 1
