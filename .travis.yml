@@ -33,6 +33,8 @@ script:
 
   # dump/checkpoint the proc
   - mkdir dump && cd dump
+  - ps axf
+  - sudo lsof -p $PID
   - sudo criu dump -t $PID -vvv
 
   # log has stopped...
