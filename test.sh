@@ -1,5 +1,4 @@
-#!/bin/sh
-exec 6>&-
+#!/bin/bash
 while :; do
     sleep 1
     date
